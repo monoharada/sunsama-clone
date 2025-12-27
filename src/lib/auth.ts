@@ -1,14 +1,17 @@
-import { supabase } from './supabase';
+import { getSupabase } from './supabase';
 import type { User } from '../types';
 
 /**
- * Authentication helper functions
+ * Authentication helper functions.
+ * These functions require Supabase to be configured and will throw in dev mode.
+ * Components should check config.isDevMode before calling these methods.
  */
 export const auth = {
   /**
    * Sign in with Google OAuth
    */
   async signInWithGoogle(): Promise<void> {
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -24,6 +27,7 @@ export const auth = {
    * Sign out
    */
   async signOut(): Promise<void> {
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   },
@@ -32,6 +36,7 @@ export const auth = {
    * Get current user
    */
   async getCurrentUser(): Promise<User | null> {
+    const supabase = getSupabase();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -50,6 +55,7 @@ export const auth = {
    * Get session
    */
   async getSession() {
+    const supabase = getSupabase();
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -60,7 +66,8 @@ export const auth = {
    * Listen to auth state changes
    */
   onAuthStateChange(callback: (user: User | null) => void) {
-    return supabase.auth.onAuthStateChange(async (event, session) => {
+    const supabase = getSupabase();
+    return supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         const user: User = {
           id: session.user.id,

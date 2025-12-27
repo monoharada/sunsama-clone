@@ -90,7 +90,7 @@ class TaskCard extends BaseComponent {
     return ['data-task'];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
     if (name === 'data-task' && newValue) {
       try {
         this.task = JSON.parse(newValue);

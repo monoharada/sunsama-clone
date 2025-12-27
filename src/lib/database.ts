@@ -1,14 +1,17 @@
-import { supabase } from './supabase';
+import { getSupabase } from './supabase';
 import type { Task, SubTask, Channel } from '../types';
 
 /**
- * Database operations for tasks
+ * Database operations for tasks.
+ * These functions require Supabase to be configured and will throw in dev mode.
+ * Components should use mockTaskDb in dev mode instead.
  */
 export const taskDb = {
   /**
    * Get all tasks for the current user
    */
   async getAll(scheduledDate?: string): Promise<Task[]> {
+    const supabase = getSupabase();
     let query = supabase
       .from('tasks')
       .select(`
@@ -51,6 +54,7 @@ export const taskDb = {
    * Create a new task
    */
   async create(task: Partial<Task>): Promise<Task> {
+    const supabase = getSupabase();
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) throw new Error('Not authenticated');
 
@@ -87,6 +91,7 @@ export const taskDb = {
    * Update a task
    */
   async update(id: string, updates: Partial<Task>): Promise<Task> {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('tasks')
       .update({
@@ -120,6 +125,7 @@ export const taskDb = {
    * Delete a task
    */
   async delete(id: string): Promise<void> {
+    const supabase = getSupabase();
     const { error } = await supabase.from('tasks').delete().eq('id', id);
 
     if (error) throw error;
@@ -127,13 +133,16 @@ export const taskDb = {
 };
 
 /**
- * Database operations for channels
+ * Database operations for channels.
+ * These functions require Supabase to be configured and will throw in dev mode.
+ * Components should use mockChannelDb in dev mode instead.
  */
 export const channelDb = {
   /**
    * Get all channels for the current user
    */
   async getAll(): Promise<Channel[]> {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('channels')
       .select('*')
@@ -153,6 +162,7 @@ export const channelDb = {
    * Create a new channel
    */
   async create(channel: Partial<Channel>): Promise<Channel> {
+    const supabase = getSupabase();
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) throw new Error('Not authenticated');
 
@@ -178,13 +188,16 @@ export const channelDb = {
 };
 
 /**
- * Database operations for subtasks
+ * Database operations for subtasks.
+ * These functions require Supabase to be configured and will throw in dev mode.
+ * Components should use mockSubtaskDb in dev mode instead.
  */
 export const subtaskDb = {
   /**
    * Create a new subtask
    */
   async create(taskId: string, title: string): Promise<SubTask> {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('subtasks')
       .insert({
@@ -209,6 +222,7 @@ export const subtaskDb = {
    * Toggle subtask completion
    */
   async toggleComplete(id: string, completed: boolean): Promise<void> {
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('subtasks')
       .update({ completed })
