@@ -53,7 +53,47 @@ cd sunsama-clone
 npm install
 ```
 
-### 3. Supabase プロジェクトのセットアップ
+### 3. 開発モード（推奨：Supabase なしで UI を確認）
+
+フロントエンドのUIを素早く確認したい場合は、開発モードを使用できます。
+Supabase のセットアップや認証なしで、モックデータを使ってアプリを起動できます。
+
+#### 開発モードの起動方法
+
+1. `.env` ファイルを作成：
+
+```bash
+cp .env.example .env
+```
+
+2. `.env` ファイルで開発モードを有効化（デフォルトで有効）：
+
+```env
+VITE_DEV_MODE=true
+```
+
+3. 開発サーバーを起動：
+
+```bash
+npm run dev
+```
+
+4. ブラウザで http://localhost:5173 を開く
+
+#### 開発モードの特徴
+
+- ✅ **認証不要** - Google OAuth やログインなしで使用可能
+- ✅ **サンプルデータ** - 3つのタスクが事前に用意されています
+- ✅ **即座に確認** - Supabase のセットアップなしでUIを確認
+- ✅ **完全な機能** - タスクの作成・編集・削除が可能（メモリ内保存）
+- ⚠️ **データは一時的** - ページをリロードするとデータは初期状態に戻ります
+
+開発モードは UI の確認やフロントエンド開発に最適です。
+本番環境のような永続的なデータ保存が必要な場合は、次の「Supabase プロジェクトのセットアップ」に進んでください。
+
+### 4. Supabase プロジェクトのセットアップ（本番環境用）
+
+本番環境のように永続的なデータ保存や複数デバイス間での同期が必要な場合は、Supabase をセットアップします。
 
 詳細は [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) を参照してください。
 
@@ -61,29 +101,23 @@ npm install
 2. データベーススキーマを適用（`supabase/migrations/20231227000000_initial_schema.sql`）
 3. Google OAuth を設定
 
-### 4. 環境変数の設定
+### 5. 環境変数の設定（本番環境用）
 
-`.env` ファイルを作成：
-
-```bash
-cp .env.example .env
-```
-
-以下の環境変数を設定：
+`.env` ファイルで以下の環境変数を設定：
 
 ```env
+# 開発モードを無効化
+VITE_DEV_MODE=false
+
+# Supabase の設定
 VITE_SUPABASE_URL=your-supabase-project-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Google OAuth の設定
 VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
-### 5. 開発サーバーの起動
-
-```bash
-npm run dev
-```
-
-ブラウザで http://localhost:5173 を開きます。
+開発サーバーを再起動すると、Supabase と接続されます。
 
 ## ビルド
 
@@ -107,6 +141,8 @@ sunsama-clone/
 │   ├── lib/              # ユーティリティとヘルパー
 │   │   ├── auth.ts           # 認証関連の関数
 │   │   ├── database.ts       # データベース操作
+│   │   ├── mock-database.ts  # モックデータベース（開発モード用）
+│   │   ├── config.ts         # アプリケーション設定
 │   │   ├── supabase.ts       # Supabase クライアント
 │   │   ├── base-component.ts # Web Components の基底クラス
 │   │   └── htmx-helper.ts    # htmx ヘルパー関数
@@ -117,6 +153,7 @@ sunsama-clone/
 │   └── main.ts           # エントリーポイント
 ├── supabase/
 │   └── migrations/       # データベースマイグレーション
+├── .env.example          # 環境変数のサンプル
 ├── index.html
 ├── package.json
 ├── tsconfig.json
