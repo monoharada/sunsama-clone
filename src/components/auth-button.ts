@@ -1,5 +1,6 @@
 import { BaseComponent } from '../lib/base-component';
 import { auth } from '../lib/auth';
+import { config } from '../lib/config';
 import type { User } from '../types';
 
 class AuthButton extends BaseComponent {
@@ -62,10 +63,28 @@ class AuthButton extends BaseComponent {
     .sign-out-btn:hover {
       background-color: #e0e0e0;
     }
+
+    .dev-mode-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #ff9800;
+      color: white;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
   `;
 
   async connectedCallback() {
     super.connectedCallback();
+
+    // In dev mode, skip authentication
+    if (config.isDevMode) {
+      this.render();
+      return;
+    }
 
     // Check current user
     this.user = await auth.getCurrentUser();
@@ -85,7 +104,13 @@ class AuthButton extends BaseComponent {
       ${this.createStyles().outerHTML}
       <div class="auth-container">
         ${
-          this.user
+          config.isDevMode
+            ? `
+          <div class="dev-mode-label">
+            🔧 開発モード
+          </div>
+        `
+            : this.user
             ? `
           <div class="user-info">
             ${this.user.avatarUrl ? `<img src="${this.user.avatarUrl}" alt="Avatar" class="avatar" />` : ''}

@@ -1,5 +1,7 @@
 import { BaseComponent } from '../lib/base-component';
 import { taskDb } from '../lib/database';
+import { mockTaskDb } from '../lib/mock-database';
+import { config } from '../lib/config';
 import type { Task } from '../types';
 
 class TaskModal extends BaseComponent {
@@ -274,11 +276,14 @@ class TaskModal extends BaseComponent {
         saveBtn.disabled = true;
         saveBtn.textContent = '保存中...';
 
+        // Use mock database in dev mode
+        const db = config.isDevMode ? mockTaskDb : taskDb;
+
         if (this.editingTask) {
-          await taskDb.update(this.editingTask.id, taskData);
+          await db.update(this.editingTask.id, taskData);
           this.emit('task-updated', { task: taskData });
         } else {
-          const newTask = await taskDb.create(taskData);
+          const newTask = await db.create(taskData);
           this.emit('task-created', { task: newTask });
         }
 

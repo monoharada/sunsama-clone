@@ -1,6 +1,8 @@
 import { BaseComponent } from '../lib/base-component';
 import { taskDb } from '../lib/database';
+import { mockTaskDb } from '../lib/mock-database';
 import { auth } from '../lib/auth';
+import { config } from '../lib/config';
 import type { Task } from '../types';
 import './task-card';
 import './task-modal';
@@ -84,10 +86,28 @@ class TaskList extends BaseComponent {
       padding: 3rem 1rem;
       color: #999;
     }
+
+    .dev-mode-badge {
+      display: inline-block;
+      margin-left: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      background-color: #ff9800;
+      color: white;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
   `;
 
   async connectedCallback() {
     super.connectedCallback();
+
+    // In dev mode, skip authentication
+    if (config.isDevMode) {
+      this.isAuthenticated = true;
+      await this.loadTasks();
+      return;
+    }
 
     // Check authentication
     const user = await auth.getCurrentUser();
@@ -119,7 +139,10 @@ class TaskList extends BaseComponent {
 
       // Get today's date in YYYY-MM-DD format
       const today = new Date().toISOString().split('T')[0];
-      this.tasks = await taskDb.getAll(today);
+
+      // Use mock database in dev mode
+      const db = config.isDevMode ? mockTaskDb : taskDb;
+      this.tasks = await db.getAll(today);
 
       this.isLoading = false;
       this.render();
@@ -165,7 +188,10 @@ class TaskList extends BaseComponent {
       ${this.createStyles().outerHTML}
       <div class="task-list-container">
         <div class="header">
-          <h2>今日のタスク</h2>
+          <h2>
+            今日のタスク
+            ${config.isDevMode ? '<span class="dev-mode-badge">DEV MODE</span>' : ''}
+          </h2>
           <button class="add-task-btn">+ タスクを追加</button>
         </div>
 
